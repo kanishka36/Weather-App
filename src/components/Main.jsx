@@ -9,18 +9,28 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { style } from "./customStyles";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import rain from '../images/rain.png'
+import  snow from '../images/snow.png'
+import mist from '../images/mist.png'
+import drizzle from '../images/drizzle.png'
+import clouds from '../images/clouds.png'
+import clear from '../images/clear.png'
+import '../style.css';
+
 
 function Main() {
-  const [temp, setTemp] = useState("");
-  const [cityName, setCityName] = useState("");
-  const [humidity, setHumidity] = useState("");
-  const [windSpeed, setWindSpeed] = useState("");
-  const [image, setImage] = useState('');
+  const [temp, setTemp] = useState("--");
+  const [cityName, setCityName] = useState("--");
+  const [city, setCity] = useState("--");
+  const [humidity, setHumidity] = useState("--");
+  const [windSpeed, setWindSpeed] = useState("--");
+  const [image, setImage] = useState(clear);
   const [error, setError] = useState("");
 
   const apiKey = "1bfba5fbff1c5ca73775bb4fe26c100d";
-  const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+  const apiUrl =
+    "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
 
   async function checkWeather(city) {
     try {
@@ -30,21 +40,27 @@ function Main() {
       }
       let data = await response.json();
       setTemp(Math.round(data.main.temp));
-      setCityName(data.name);
+      setCity(data.name);
       setHumidity(data.main.humidity);
       setWindSpeed(data.wind.speed);
-      setImage(data.weather[0].main);
+      if (data.weather[0].main === "Clouds") {
+        setImage(clouds);
+      } else if (data.weather[0].main === "Clear") {
+        setImage(clear);
+      } else if (data.weather[0].main === "Drizzle") {
+        setImage(drizzle);
+      } else if (data.weather[0].main === "Mist") {
+        setImage(mist);
+      } else if (data.weather[0].main === "Rain") {
+        setImage(rain);
+      } else if (data.weather[0].main === "Snow") {
+        setImage(snow);
+      }
       console.log(data);
     } catch {
       setError("City not found. Please enter a valid city name.");
     }
   }
-
-  useEffect(() => {
-    if (cityName) {
-      checkWeather(cityName);
-    }
-  }, [cityName]);
 
   return (
     <>
@@ -62,7 +78,7 @@ function Main() {
             alignItems="center"
             sx={{
               width: 500,
-              backgroundColor: "secondary.dark",
+              background: 'linear-gradient(135deg, green, blue)',
               borderRadius: "15px",
               padding: "16px",
             }}
@@ -103,10 +119,10 @@ function Main() {
                   alignItems="center"
                   p={2}
                 >
-                  <img src={`../images/${image}.png`} alt="icon" />
-                  <Typography variant="h1">{temp}°c</Typography>
-                  <Typography variant="h3" sx={{ textAlign: "center" }}>
-                    {cityName}
+                  <img src={image} alt="icon" className="main-image" />
+                  <Typography variant="h1" color='white'>{temp}°c</Typography>
+                  <Typography variant="h3" color='white' sx={{ textAlign: "center" }}>
+                    {city}
                   </Typography>
                 </Box>
               </Grid>
@@ -127,8 +143,8 @@ function Main() {
                     <Stack direction="row">
                       <img src="" alt="humidity" />
                       <Box>
-                        <Typography variant="h5">{humidity}%</Typography>
-                        <Typography variant="h6">Humidity</Typography>
+                        <Typography variant="h5" color='white'>{humidity}%</Typography>
+                        <Typography variant="h6" color='white'>Humidity</Typography>
                       </Box>
                     </Stack>
                   </Box>
@@ -143,8 +159,8 @@ function Main() {
                     <Stack direction="row">
                       <img src="" alt="wind" />
                       <Box>
-                        <Typography variant="h5">{windSpeed} km/h</Typography>
-                        <Typography variant="h6">Wind Speed</Typography>
+                        <Typography variant="h5" color='white'>{windSpeed} km/h</Typography>
+                        <Typography variant="h6" color='white'>Wind Speed</Typography>
                       </Box>
                     </Stack>
                   </Box>
@@ -152,7 +168,11 @@ function Main() {
               </Grid>
               {error && (
                 <Grid item xs={12} justifyContent="center">
-                  <Typography variant="body1" color="error" sx={{textAlign: 'center'}}>
+                  <Typography
+                    variant="body1"
+                    color="error"
+                    sx={{ textAlign: "center" }}
+                  >
                     {error}
                   </Typography>
                 </Grid>
